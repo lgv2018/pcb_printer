@@ -131,6 +131,9 @@ void setup() {
 /**********************
  * void loop() - Main loop
  ***********************/
+// Kicsit idegesít, hogy a serialon fogadástól eltekintve csak egy függvényhívás van, s az csinálja az érdemi munkát. 
+// De legalább könnyebb debuggolni. 
+// A loop()-on nem is írok át semmit, mert az csak a stringfeldolgozás.
 void loop() 
 {
   delay(200);
@@ -146,6 +149,7 @@ void loop()
   while (1) {
 
     // Serial reception - Mostly from Grbl, added semicolon support
+    // Ezt azt hiszem, verbatim bennhagyom, mert csak a serial küldés. Majd meg kell oldjuk, hogy itt küldjök a G-kódot. 
     while ( Serial.available()>0 ) {
       c = Serial.read();
       if (( c == '\n') || (c == '\r') ) {             // End of line reached
@@ -248,7 +252,7 @@ void processIncomingLine( char* line, int charNB ) {
           indexY = '\0';
           newPos.x = atof( indexX + 1);
         }
-        drawLine(newPos.x, newPos.y );
+        drawLine(newPos.x, newPos.y ); // A DrawLine függvényben vannak stepper dolgok, a többi csak feldolgozásnak tűnik
         //        Serial.println("ok");
         actuatorPos.x = newPos.x;
         actuatorPos.y = newPos.y;
@@ -286,9 +290,6 @@ void processIncomingLine( char* line, int charNB ) {
       }
     }
   }
-
-
-
 }
 
 
@@ -405,6 +406,7 @@ void drawLine(float x1, float y1) {
 }
 
 //  Raises pen
+// Ezt elvileg nem kell átírni, mert a servo könyvtár ugyanaz
 void penUp() { 
   penServo.write(penZUp); 
   delay(LineDelay); 
@@ -414,6 +416,7 @@ void penUp() {
   } 
 }
 //  Lowers pen
+// Ugyanezért ezt sem
 void penDown() { 
   penServo.write(penZDown); 
   delay(LineDelay); 
