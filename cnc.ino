@@ -72,11 +72,11 @@ float StepsPerMillimeterY = 6.0;
 
 // Drawing robot limits, in mm
 // OK to start with. Could go up to 50 mm if calibrated well. 
-// TODO: Ezt is állítsuk be. Nekünk egy jó 150 körüli kéne legyen, szóval egyelőre 100-ra állítom, mert az bőven kevés. 
+// TODO: Ezt is állítsuk be. Nekünk egy jó 40 körüli kéne legyen, szóval egyelőre 30-ra állítom, mert az bőven kevés. 
 float Xmin = 0;
-float Xmax = 100;
+float Xmax = 30;
 float Ymin = 0;
-float Ymax = 100;
+float Ymax = 30;
 float Zmin = 0;
 float Zmax = 1;
 
@@ -351,30 +351,30 @@ void drawLine(float x1, float y1) {
   //  Let's find out the change for the coordinates
   long dx = abs(x1-x0);
   long dy = abs(y1-y0);
-  int sx = x0<x1 ? StepInc : -StepInc;
-  int sy = y0<y1 ? StepInc : -StepInc;
+  int sx = x0<x1 ? StepInc : -StepInc; // Actual number of steps done in the X direction
+  int sy = y0<y1 ? StepInc : -StepInc; // Actual number of steps done in the Y direction
 
   long i;
   long over = 0;
 
   if (dx > dy) {
     for (i=0; i<dx; ++i) {
-      myStepperX.step(sx);
+      StepperX.move(sx); // A mi könyvtárunkban így adjuk meg, hogy ennyi lépést menjen
       over+=dy;
       if (over>=dx) {
         over-=dx;
-        myStepperY.step(sy);
+        StepperY.move(sy);
       }
       delay(StepDelay);
     }
   }
   else {
     for (i=0; i<dy; ++i) {
-      myStepperY.step(sy);
+      StepperY.move(sy);
       over+=dx;
       if (over>=dy) {
         over-=dy;
-        myStepperX.step(sx);
+        StepperX.move(sx);
       }
       delay(StepDelay);
     }    
