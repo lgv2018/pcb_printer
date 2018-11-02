@@ -72,6 +72,7 @@ float StepsPerMillimeterY = 6.0;
 
 // Drawing robot limits, in mm
 // OK to start with. Could go up to 50 mm if calibrated well. 
+
 // TODO: Ezt is állítsuk be. Nekünk egy jó 40 körüli kéne legyen, szóval egyelőre 30-ra állítom, mert az bőven kevés. 
 float Xmin = 0;
 float Xmax = 30;
@@ -127,6 +128,8 @@ void setup() {
   Serial.print(Ymax); 
   Serial.println(" mm."); 
 }
+
+
 
 /**********************
  * void loop() - Main loop
@@ -404,6 +407,7 @@ void drawLine(float x1, float y1) {
   Xpos = x1;
   Ypos = y1;
 }
+
 
 //  Raises pen
 // Ezt elvileg nem kell átírni, mert a servo könyvtár ugyanaz
