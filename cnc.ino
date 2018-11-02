@@ -72,11 +72,12 @@ float StepsPerMillimeterY = 6.0;
 
 // Drawing robot limits, in mm
 // OK to start with. Could go up to 50 mm if calibrated well. 
-// TODO: Ezt is állítsuk be. Nekünk egy jó 150 körüli kéne legyen, szóval egyelőre 100-ra állítom, mert az bőven kevés. 
+
+// TODO: Ezt is állítsuk be. Nekünk egy jó 40 körüli kéne legyen, szóval egyelőre 30-ra állítom, mert az bőven kevés. 
 float Xmin = 0;
-float Xmax = 100;
+float Xmax = 30;
 float Ymin = 0;
-float Ymax = 100;
+float Ymax = 30;
 float Zmin = 0;
 float Zmax = 1;
 
@@ -294,7 +295,119 @@ void processIncomingLine( char* line, int charNB ) {
   }
 }
 
-// TODO: DrawLine függvény beírása
+
+/*********************************
+ * Draw a line from (x0;y0) to (x1;y1). 
+ * Bresenham algo from https://www.marginallyclever.com/blog/2013/08/how-to-build-an-2-axis-arduino-cnc-gcode-interpreter/
+ * int (x1;y1) : Starting coordinates
+ * int (x2;y2) : Ending coordinates
+ **********************************/
+void drawLine(float x1, float y1) {
+
+  if (verbose)
+  {
+    Serial.print("fx1, fy1: ");
+    Serial.print(x1);
+    Serial.print(",");
+    Serial.print(y1);
+    Serial.println("");
+  }  
+
+  //  Bring instructions within limits
+  if (x1 >= Xmax) { 
+    x1 = Xmax; 
+  }
+  if (x1 <= Xmin) { 
+    x1 = Xmin; 
+  }
+  if (y1 >= Ymax) { 
+    y1 = Ymax; 
+  }
+  if (y1 <= Ymin) { 
+    y1 = Ymin; 
+  }
+
+  if (verbose)
+  {
+    Serial.print("Xpos, Ypos: ");
+    Serial.print(Xpos);
+    Serial.print(",");
+    Serial.print(Ypos);
+    Serial.println("");
+  }
+
+  if (verbose)
+  {
+    Serial.print("x1, y1: ");
+    Serial.print(x1);
+    Serial.print(",");
+    Serial.print(y1);
+    Serial.println("");
+  }
+
+  //  Convert coordinates to steps
+  x1 = (int)(x1*StepsPerMillimeterX);
+  y1 = (int)(y1*StepsPerMillimeterY);
+  float x0 = Xpos;
+  float y0 = Ypos;
+
+  //  Let's find out the change for the coordinates
+  long dx = abs(x1-x0);
+  long dy = abs(y1-y0);
+  int sx = x0<x1 ? StepInc : -StepInc; // Actual number of steps done in the X direction
+  int sy = y0<y1 ? StepInc : -StepInc; // Actual number of steps done in the Y direction
+
+  long i;
+  long over = 0;
+
+  if (dx > dy) {
+    for (i=0; i<dx; ++i) {
+      StepperX.move(sx); // A mi könyvtárunkban így adjuk meg, hogy ennyi lépést menjen
+      over+=dy;
+      if (over>=dx) {
+        over-=dx;
+        StepperY.move(sy);
+      }
+      delay(StepDelay);
+    }
+  }
+  else {
+    for (i=0; i<dy; ++i) {
+      StepperY.move(sy);
+      over+=dx;
+      if (over>=dy) {
+        over-=dy;
+        StepperX.move(sx);
+      }
+      delay(StepDelay);
+    }    
+  }
+
+  if (verbose)
+  {
+    Serial.print("dx, dy:");
+    Serial.print(dx);
+    Serial.print(",");
+    Serial.print(dy);
+    Serial.println("");
+  }
+
+  if (verbose)
+  {
+    Serial.print("Going to (");
+    Serial.print(x0);
+    Serial.print(",");
+    Serial.print(y0);
+    Serial.println(")");
+  }
+
+  //  Delay before any next lines are submitted
+  delay(LineDelay);
+  //  Update the positions
+  Xpos = x1;
+  Ypos = y1;
+}
+
 
 //  Raises pen
 // Ezt elvileg nem kell átírni, mert a servo könyvtár ugyanaz
